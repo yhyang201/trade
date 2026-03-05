@@ -228,6 +228,29 @@ const companyNames: Record<string, string> = {
   DELL: "Dell",
   ADBE: "Adobe",
   QCOM: "Qualcomm",
+  // China A-shares
+  "600519.SS": "Kweichow Moutai",
+  "000858.SZ": "Wuliangye",
+  "601318.SS": "Ping An Insurance",
+  "600036.SS": "China Merchants Bank",
+  "000001.SZ": "Ping An Bank",
+  "600900.SS": "CYPC",
+  "601012.SS": "LONGi Green Energy",
+  "300750.SZ": "CATL",
+  "002594.SZ": "BYD",
+  "600030.SS": "CITIC Securities",
+  // Hong Kong
+  "0700.HK": "Tencent",
+  "9988.HK": "Alibaba",
+  "3690.HK": "Meituan",
+  "9888.HK": "Baidu",
+  "1810.HK": "Xiaomi",
+  "9618.HK": "JD.com",
+  // Commodities
+  "GC=F": "Gold",
+  GLD: "Gold ETF",
+  "SI=F": "Silver",
+  "CL=F": "Crude Oil",
 };
 
 export function generateNewsData(

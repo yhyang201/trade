@@ -21,6 +21,38 @@ export interface RawNewsItem {
   imageUrl: string;
 }
 
+// Check if symbol is a US stock (Finnhub company-news only supports US)
+function isUSSymbol(symbol: string): boolean {
+  return !symbol.includes(".") && !symbol.includes("=");
+}
+
+// Map non-US symbols to search keywords for general news
+function getSearchKeyword(symbol: string): string {
+  const mapping: Record<string, string> = {
+    "600519.SS": "Moutai",
+    "000858.SZ": "Wuliangye",
+    "601318.SS": "Ping An Insurance",
+    "600036.SS": "China Merchants Bank",
+    "000001.SZ": "Ping An Bank",
+    "600900.SS": "Yangtze Power",
+    "601012.SS": "LONGi",
+    "300750.SZ": "CATL battery",
+    "002594.SZ": "BYD",
+    "600030.SS": "CITIC Securities",
+    "0700.HK": "Tencent",
+    "9988.HK": "Alibaba",
+    "3690.HK": "Meituan",
+    "9888.HK": "Baidu",
+    "1810.HK": "Xiaomi",
+    "9618.HK": "JD.com",
+    "GC=F": "gold price",
+    "GLD": "gold ETF",
+    "SI=F": "silver price",
+    "CL=F": "crude oil price",
+  };
+  return mapping[symbol] || symbol;
+}
+
 export async function fetchCompanyNews(
   symbol: string,
   fromDate: string,
@@ -31,15 +63,46 @@ export async function fetchCompanyNews(
     throw new Error("FINNHUB_API_KEY not set");
   }
 
-  const url = `https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${fromDate}&to=${toDate}&token=${apiKey}`;
+  // US stocks: use company-news endpoint
+  if (isUSSymbol(symbol)) {
+    const url = `https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${fromDate}&to=${toDate}&token=${apiKey}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Finnhub API error: ${res.status}`);
+    }
+
+    const data: FinnhubNews[] = await res.json();
+    return data.map((item) => ({
+      date: new Date(item.datetime * 1000).toISOString().split("T")[0],
+      title: item.headline,
+      summary: item.summary,
+      source: item.source,
+      url: item.url,
+      imageUrl: item.image,
+    }));
+  }
+
+  // Non-US stocks: use general market news filtered by keyword
+  const url = `https://finnhub.io/api/v1/news?category=general&token=${apiKey}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Finnhub API error: ${res.status}`);
   }
 
   const data: FinnhubNews[] = await res.json();
+  const keyword = getSearchKeyword(symbol).toLowerCase();
+  const keywords = keyword.split(" ");
 
-  return data.map((item) => ({
+  // Filter news that mention the company/commodity
+  const filtered = data.filter((item) => {
+    const text = (item.headline + " " + item.summary).toLowerCase();
+    return keywords.some((kw) => text.includes(kw));
+  });
+
+  // If not enough filtered results, return general market news
+  const results = filtered.length >= 5 ? filtered : data.slice(0, 50);
+
+  return results.map((item) => ({
     date: new Date(item.datetime * 1000).toISOString().split("T")[0],
     title: item.headline,
     summary: item.summary,
