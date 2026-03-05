@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const symbol = req.nextUrl.searchParams.get("symbol") || "AAPL";
+  const debug = req.nextUrl.searchParams.get("debug") === "1";
 
   // Try Finnhub real news
   if (process.env.FINNHUB_API_KEY) {
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
           source: raw.source,
           url: raw.url,
           imageUrl: raw.imageUrl,
-          returnT1: 0, // Will be computed with stock data
+          returnT1: 0,
           returnT5: 0,
         };
       });
@@ -73,7 +74,6 @@ export async function GET(req: NextRequest) {
         const sortedDates = candles.map((c) => c.time).sort();
         const priceByDate = new Map(candles.map((c) => [c.time, c]));
 
-        // Find nearest trading day at or before the given date
         function findNearestIdx(date: string): number {
           let lo = 0, hi = sortedDates.length - 1;
           while (lo <= hi) {
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
             if (sortedDates[mid] <= date) lo = mid + 1;
             else hi = mid - 1;
           }
-          return hi; // largest index where sortedDates[idx] <= date
+          return hi;
         }
 
         for (const item of news) {
@@ -107,6 +107,32 @@ export async function GET(req: NextRequest) {
         // Stock data not available, returns stay at 0
       }
 
+      // Debug mode: show classification details
+      if (debug) {
+        const cats: Record<string, number> = {};
+        const sents: Record<string, number> = {};
+        for (const n of news) {
+          cats[n.category] = (cats[n.category] || 0) + 1;
+          sents[n.sentiment] = (sents[n.sentiment] || 0) + 1;
+        }
+        return NextResponse.json({
+          _debug: {
+            version: "v3-scoring",
+            totalNews: rawNews.length,
+            hasAI: !!process.env.MOONSHOT_API_KEY,
+            aiClassifications: classifications.length,
+            categories: cats,
+            sentiments: sents,
+            sample: rawNews.slice(0, 3).map((r) => ({
+              title: r.title.slice(0, 80),
+              summary: r.summary.slice(0, 80),
+              classified: categorizeByKeywords(r.title, r.summary),
+            })),
+          },
+          news: news.slice(0, 5),
+        });
+      }
+
       return NextResponse.json(news);
     } catch (e) {
       console.warn(`Finnhub failed for ${symbol}, using mock data:`, e);
@@ -116,5 +142,26 @@ export async function GET(req: NextRequest) {
   // Fallback to mock data
   const candles = generateStockData(symbol);
   const news = generateNewsData(symbol, candles);
+
+  if (debug) {
+    const cats: Record<string, number> = {};
+    const sents: Record<string, number> = {};
+    for (const n of news) {
+      cats[n.category] = (cats[n.category] || 0) + 1;
+      sents[n.sentiment] = (sents[n.sentiment] || 0) + 1;
+    }
+    return NextResponse.json({
+      _debug: {
+        version: "v3-scoring",
+        source: "mock",
+        hasFinnhub: !!process.env.FINNHUB_API_KEY,
+        totalNews: news.length,
+        categories: cats,
+        sentiments: sents,
+      },
+      news: news.slice(0, 5),
+    });
+  }
+
   return NextResponse.json(news);
 }
