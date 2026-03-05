@@ -41,12 +41,12 @@ export default function Home() {
   const [similarNewsItem, setSimilarNewsItem] = useState<NewsItem | null>(
     null
   );
-  const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(true);
 
   // Load stock and news data
   useEffect(() => {
     async function loadData() {
-      setLoading(true);
+      setChartLoading(true);
       const [stockRes, newsRes] = await Promise.all([
         fetch(`/api/stock?symbol=${symbol}`),
         fetch(`/api/news?symbol=${symbol}`),
@@ -60,7 +60,7 @@ export default function Home() {
       setSimilarNewsItem(null);
       setSelectedCategory(null);
       setSentimentFilter("all");
-      setLoading(false);
+      setChartLoading(false);
     }
     loadData();
   }, [symbol]);
@@ -132,23 +132,23 @@ export default function Home() {
   const priceChangePct = prevPrice ? (priceChange / prevPrice) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-[#0a0e17]">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-gray-800/50 px-5 py-2.5 flex items-center gap-4 backdrop-blur-md bg-[#0a0e17]/90 sticky top-0 z-40">
-        <h1 className="text-white font-bold text-lg tracking-wide animate-fade-in select-none">
-          <span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">K</span>
-          <span className="text-gray-200">Story</span>
+      <header className="border-b border-[rgba(99,132,199,0.1)] px-5 py-2.5 flex items-center gap-4 backdrop-blur-md bg-[#0f1729]/80 sticky top-0 z-40">
+        <h1 className="text-white font-bold text-lg tracking-wide select-none">
+          <span className="text-blue-400 drop-shadow-[0_0_12px_rgba(96,165,250,0.5)]">K</span>
+          <span className="text-slate-200">Story</span>
         </h1>
         <StockSelector symbol={symbol} onSelect={setSymbol} />
         {currentPrice > 0 && (
-          <div className="flex items-center gap-2 animate-fade-in">
+          <div className="flex items-center gap-2 animate-fade-in" key={symbol}>
             <span className="text-white text-sm font-semibold font-mono">
               ${currentPrice.toFixed(2)}
             </span>
-            <span className={`text-xs font-medium font-mono px-1.5 py-0.5 rounded ${
+            <span className={`text-xs font-medium font-mono px-2 py-0.5 rounded-md ${
               priceChange >= 0
-                ? "text-green-400 bg-green-900/20"
-                : "text-red-400 bg-red-900/20"
+                ? "text-green-400 bg-green-500/10"
+                : "text-red-400 bg-red-500/10"
             }`}>
               {priceChange >= 0 ? "+" : ""}{priceChange.toFixed(2)} ({priceChangePct >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
             </span>
@@ -169,6 +169,7 @@ export default function Home() {
             <CandlestickChart
               candles={candles}
               news={filteredNews}
+              loading={chartLoading}
               onDateClick={handleDateClick}
               onRangeSelect={handleRangeSelect}
             />
@@ -211,7 +212,7 @@ export default function Home() {
         </div>
 
         {/* Right Panel */}
-        <div className="w-full lg:w-[360px] border-l border-gray-800/40 p-5">
+        <div className="w-full lg:w-[360px] border-l border-[rgba(99,132,199,0.1)] p-5 animate-slide-in-right">
           <ForecastPanel
             forecast={forecast}
             period={forecastPeriod}

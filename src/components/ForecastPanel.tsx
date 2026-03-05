@@ -18,10 +18,10 @@ export default function ForecastPanel({
   if (loading) {
     return (
       <div className="space-y-4 animate-fade-in">
-        <div className="h-4 bg-gray-700/50 rounded w-1/3 shimmer" />
-        <div className="h-24 bg-gray-700/50 rounded-xl shimmer" />
-        <div className="h-16 bg-gray-700/50 rounded-xl shimmer" />
-        <div className="h-4 bg-gray-700/50 rounded w-2/3 shimmer" />
+        <div className="h-4 bg-blue-800/15 rounded w-1/3 shimmer" />
+        <div className="h-24 bg-blue-800/15 rounded-xl shimmer" />
+        <div className="h-16 bg-blue-800/15 rounded-xl shimmer" />
+        <div className="h-4 bg-blue-800/15 rounded w-2/3 shimmer" />
       </div>
     );
   }
@@ -34,14 +34,14 @@ export default function ForecastPanel({
     <div className="space-y-5 animate-fade-in-up">
       {/* Period Toggle */}
       <div className="flex items-center gap-3">
-        <span className="text-gray-400 text-xs font-semibold tracking-widest uppercase">Forecast</span>
-        <div className="flex gap-1 bg-gray-800/60 rounded-full p-0.5">
+        <span className="text-blue-300/50 text-xs font-semibold tracking-widest uppercase">Forecast</span>
+        <div className="flex gap-1 bg-[#162036]/80 rounded-full p-0.5 border border-[rgba(99,132,199,0.1)]">
           <button
             onClick={() => onPeriodChange("7d")}
             className={`px-3 py-1 text-xs rounded-full transition-all duration-200 font-medium ${
               period === "7d"
                 ? "bg-blue-600 text-white shadow-[0_0_10px_rgba(59,130,246,0.3)]"
-                : "text-gray-400 hover:text-gray-200"
+                : "text-blue-300/40 hover:text-blue-200"
             }`}
           >
             7D
@@ -51,7 +51,7 @@ export default function ForecastPanel({
             className={`px-3 py-1 text-xs rounded-full transition-all duration-200 font-medium ${
               period === "30d"
                 ? "bg-blue-600 text-white shadow-[0_0_10px_rgba(59,130,246,0.3)]"
-                : "text-gray-400 hover:text-gray-200"
+                : "text-blue-300/40 hover:text-blue-200"
             }`}
           >
             30D
@@ -70,7 +70,7 @@ export default function ForecastPanel({
                 className={`w-5 h-1.5 rounded-full transition-all ${
                   forecast.confidence > threshold
                     ? isUp ? "bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.5)]" : "bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]"
-                    : "bg-gray-700"
+                    : "bg-blue-800/30"
                 }`}
               />
             ))}
@@ -81,12 +81,12 @@ export default function ForecastPanel({
       {/* AI Forecast Badge */}
       <div className={`rounded-xl p-4 border transition-all ${
         isUp
-          ? "bg-gradient-to-br from-green-950/40 to-green-950/10 border-green-800/40"
-          : "bg-gradient-to-br from-red-950/40 to-red-950/10 border-red-800/40"
+          ? "bg-gradient-to-br from-green-500/10 to-green-500/2 border-green-500/20"
+          : "bg-gradient-to-br from-red-500/10 to-red-500/2 border-red-500/20"
       }`}>
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-gray-500 text-[10px] mb-1 tracking-widest font-medium">AI FORECAST</div>
+            <div className="text-blue-300/35 text-[10px] mb-1 tracking-widest font-medium">AI FORECAST</div>
             <div className="flex items-center gap-2">
               <span className={`text-2xl ${isUp ? "text-green-400" : "text-red-400"}`}>
                 {isUp ? "↑" : "↓"}
@@ -98,8 +98,8 @@ export default function ForecastPanel({
           </div>
           <div className={`text-4xl font-bold tabular-nums ${
             isUp
-              ? "text-green-400 drop-shadow-[0_0_16px_rgba(34,197,94,0.4)]"
-              : "text-red-400 drop-shadow-[0_0_16px_rgba(239,68,68,0.4)]"
+              ? "text-green-400 drop-shadow-[0_0_20px_rgba(34,197,94,0.35)]"
+              : "text-red-400 drop-shadow-[0_0_20px_rgba(239,68,68,0.35)]"
           }`}>
             {forecast.confidence}%
           </div>
@@ -108,9 +108,9 @@ export default function ForecastPanel({
 
       {/* Analysis Text */}
       <div className="glass-card rounded-xl p-3.5">
-        <div className="text-gray-400 text-xs font-semibold mb-2 tracking-widest uppercase">Analysis</div>
-        <p className="text-gray-300 text-xs leading-relaxed">
-          <span className="text-yellow-500 mr-1">●</span>
+        <div className="text-blue-300/45 text-xs font-semibold mb-2 tracking-widest uppercase">Analysis</div>
+        <p className="text-slate-300/80 text-xs leading-relaxed">
+          <span className="text-amber-500 mr-1">●</span>
           {forecast.analysis}
         </p>
       </div>
@@ -125,13 +125,13 @@ export default function ForecastPanel({
           return (
             <div
               key={label}
-              className={`border rounded-xl p-3 transition-all duration-200 animate-fade-in-up ${
+              className={`border rounded-xl p-3 transition-all duration-200 ${
                 predUp
-                  ? "border-green-800/40 bg-gradient-to-b from-green-950/30 to-transparent hover:border-green-700/50"
-                  : "border-red-800/40 bg-gradient-to-b from-red-950/30 to-transparent hover:border-red-700/50"
+                  ? "border-green-500/15 bg-gradient-to-b from-green-500/8 to-transparent hover:border-green-500/25"
+                  : "border-red-500/15 bg-gradient-to-b from-red-500/8 to-transparent hover:border-red-500/25"
               }`}
             >
-              <div className="text-gray-500 text-[10px] tracking-wider mb-1">{label}</div>
+              <div className="text-blue-300/30 text-[10px] tracking-wider mb-1">{label}</div>
               <div className="flex items-center justify-between">
                 <span
                   className={`text-sm font-bold ${predUp ? "text-green-400" : "text-red-400"}`}
@@ -151,14 +151,14 @@ export default function ForecastPanel({
 
       {/* Key Topics */}
       <div>
-        <div className="text-gray-400 text-xs font-semibold mb-2.5 tracking-widest uppercase">
+        <div className="text-blue-300/45 text-xs font-semibold mb-2.5 tracking-widest uppercase">
           Key Topics
         </div>
         <div className="flex flex-wrap gap-2">
           {forecast.keyTopics.map((topic, i) => (
             <span
               key={topic}
-              className="bg-gray-800/50 text-gray-300 text-[11px] px-3 py-1.5 rounded-full border border-gray-700/40 transition-all duration-200 hover:border-cyan-600/50 hover:text-cyan-300 hover:bg-gray-800/80 animate-fade-in cursor-default"
+              className="bg-[#162036]/80 text-blue-200/60 text-[11px] px-3 py-1.5 rounded-full border border-[rgba(99,132,199,0.12)] transition-all duration-200 hover:border-blue-500/30 hover:text-blue-200 cursor-default animate-fade-in"
               style={{ animationDelay: `${i * 40}ms` }}
             >
               {topic}

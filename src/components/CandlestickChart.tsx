@@ -16,6 +16,7 @@ import type { StockCandle, NewsItem } from "@/types";
 interface Props {
   candles: StockCandle[];
   news: NewsItem[];
+  loading?: boolean;
   onDateClick: (date: string) => void;
   onRangeSelect: (start: string, end: string, percentChange: number) => void;
 }
@@ -23,6 +24,7 @@ interface Props {
 export default function CandlestickChart({
   candles,
   news,
+  loading,
   onDateClick,
   onRangeSelect,
 }: Props) {
@@ -56,29 +58,29 @@ export default function CandlestickChart({
   }, [news]);
 
   useEffect(() => {
-    if (!chartContainerRef.current) return;
+    if (!chartContainerRef.current || candles.length === 0) return;
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { color: "#0a0e17" },
-        textColor: "#9ca3af",
+        background: { color: "#0f1729" },
+        textColor: "#7b8ab5",
       },
       grid: {
-        vertLines: { color: "#1f2937" },
-        horzLines: { color: "#1f2937" },
+        vertLines: { color: "rgba(99, 132, 199, 0.06)" },
+        horzLines: { color: "rgba(99, 132, 199, 0.06)" },
       },
       crosshair: {
         mode: 0,
       },
       rightPriceScale: {
-        borderColor: "#374151",
+        borderColor: "rgba(99, 132, 199, 0.15)",
       },
       timeScale: {
-        borderColor: "#374151",
+        borderColor: "rgba(99, 132, 199, 0.15)",
         timeVisible: false,
       },
       width: chartContainerRef.current.clientWidth,
-      height: 380,
+      height: 400,
     });
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
@@ -174,7 +176,6 @@ export default function CandlestickChart({
     (e: React.MouseEvent) => {
       if (!chartRef.current || !candleSeriesRef.current) return;
 
-      // Get time from chart coordinate
       const chart = chartRef.current;
       const rect = chartContainerRef.current!.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -211,15 +212,39 @@ export default function CandlestickChart({
   );
 
   return (
-    <div className="relative">
+    <div className="relative rounded-xl overflow-hidden border border-[rgba(99,132,199,0.1)]">
       <div
         ref={chartContainerRef}
         onDoubleClick={handleRangeClick}
         className="w-full"
       />
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="absolute inset-0 chart-loading-overlay z-30 flex flex-col items-center justify-center gap-4 rounded-xl">
+          {/* Animated bar chart icon */}
+          <div className="flex items-end gap-1.5 h-10">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="chart-loading-bar w-2 rounded-full"
+                style={{
+                  height: "100%",
+                  background: `linear-gradient(to top, ${i % 2 === 0 ? '#22c55e' : '#3b82f6'}, ${i % 2 === 0 ? '#4ade80' : '#60a5fa'})`,
+                  opacity: 0.8,
+                }}
+              />
+            ))}
+          </div>
+          <div className="text-sm text-blue-300/80 font-medium tracking-wide animate-breathe">
+            Loading chart data...
+          </div>
+        </div>
+      )}
+
       {tooltip && (
         <div
-          className="absolute pointer-events-none bg-gray-900/95 border border-gray-600 rounded-lg p-3 text-xs max-w-[280px] z-10"
+          className="absolute pointer-events-none bg-[#162036]/95 border border-blue-800/30 rounded-xl p-3 text-xs max-w-[280px] z-10 shadow-xl shadow-black/20"
           style={{ left: tooltip.x + 15, top: tooltip.y - 60 }}
         >
           <div className="text-white font-medium mb-1 leading-tight">
@@ -245,8 +270,8 @@ export default function CandlestickChart({
         </div>
       )}
       {rangeStart && (
-        <div className="absolute top-2 right-2 bg-blue-600/80 text-white text-xs px-2 py-1 rounded">
-          Range start: {rangeStart} (double-click end point)
+        <div className="absolute top-3 right-3 bg-blue-600/90 text-white text-xs px-3 py-1.5 rounded-full shadow-lg shadow-blue-900/30 animate-fade-in font-medium">
+          Range start: {rangeStart} — double-click end point
         </div>
       )}
       {rangePopup && (
@@ -263,7 +288,7 @@ export default function CandlestickChart({
           onClose={() => setRangePopup(null)}
         />
       )}
-      <div className="text-[10px] text-gray-600 mt-1">
+      <div className="absolute bottom-2 left-3 text-[10px] text-blue-400/40">
         Double-click twice to select a date range for AI analysis
       </div>
     </div>
@@ -291,11 +316,11 @@ function RangePopup({
 
   return (
     <div
-      className="absolute bg-gray-800/95 border border-gray-600 rounded-lg p-4 z-20 w-[280px] shadow-2xl"
+      className="absolute bg-[#162036]/95 backdrop-blur-xl border border-blue-800/30 rounded-xl p-4 z-20 w-[300px] shadow-2xl shadow-black/30 animate-fade-in-up"
       style={{ left: Math.min(x, 400), top: Math.max(10, y - 150) }}
     >
-      <div className="flex justify-between items-start mb-2">
-        <div className="text-white text-xs">
+      <div className="flex justify-between items-start mb-3">
+        <div className="text-blue-200/80 text-xs font-mono">
           {start} ~ {end}
         </div>
         <span
@@ -307,10 +332,10 @@ function RangePopup({
           {percentChange}%
         </span>
       </div>
-      <div className="text-cyan-400 text-xs font-medium mb-2">
+      <div className="text-cyan-400 text-xs font-semibold mb-2.5 tracking-wide">
         Ask KStory
       </div>
-      <div className="space-y-1.5 mb-3">
+      <div className="space-y-1 mb-3">
         {[
           "What's driving the price movement?",
           "Summarize key news in this period",
@@ -319,30 +344,30 @@ function RangePopup({
           <button
             key={q}
             onClick={() => onAsk(q)}
-            className="block w-full text-left text-xs text-gray-300 hover:text-white hover:bg-gray-700 px-2 py-1.5 rounded transition"
+            className="block w-full text-left text-xs text-blue-200/70 hover:text-white hover:bg-blue-800/20 px-3 py-2 rounded-lg transition-all duration-150"
           >
             {q}
           </button>
         ))}
       </div>
-      <div className="flex gap-1">
+      <div className="flex gap-1.5">
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onAsk(question)}
           placeholder="Ask a question..."
-          className="flex-1 bg-gray-700 text-white text-xs px-2 py-1.5 rounded border border-gray-600 outline-none focus:border-blue-500"
+          className="flex-1 bg-[#0f1729] text-white text-xs px-3 py-2 rounded-lg border border-blue-800/30 outline-none focus:border-blue-500/50 transition-colors placeholder:text-blue-300/30"
         />
         <button
           onClick={() => onAsk(question)}
-          className="bg-blue-600 text-white px-2 py-1.5 rounded text-xs hover:bg-blue-500"
+          className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors"
         >
           &rarr;
         </button>
       </div>
       <button
         onClick={onClose}
-        className="absolute top-1 right-2 text-gray-500 hover:text-white text-sm"
+        className="absolute top-2 right-3 text-blue-300/40 hover:text-white text-sm transition-colors"
       >
         &times;
       </button>

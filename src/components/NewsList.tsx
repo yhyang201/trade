@@ -18,7 +18,7 @@ export default function NewsList({ news, selectedDate, onFindSimilar }: Props) {
 
   if (filteredNews.length === 0) {
     return (
-      <div className="text-gray-500 text-xs py-8 text-center animate-fade-in">
+      <div className="text-blue-300/40 text-xs py-8 text-center animate-fade-in">
         Click on the chart to see news for a specific date
       </div>
     );
@@ -27,14 +27,14 @@ export default function NewsList({ news, selectedDate, onFindSimilar }: Props) {
   return (
     <div className="animate-fade-in">
       <div className="flex items-center gap-2.5 mb-3">
-        <span className="text-gray-400 text-xs font-semibold tracking-widest uppercase">News</span>
-        <span className="bg-cyan-900/30 text-cyan-400 text-xs px-3 py-0.5 rounded-full border border-cyan-700/30 font-mono">
+        <span className="text-blue-300/60 text-xs font-semibold tracking-widest uppercase">News</span>
+        <span className="bg-blue-500/10 text-blue-400 text-xs px-3 py-0.5 rounded-full border border-blue-500/20 font-mono">
           {displayDate}
         </span>
-        <span className="text-gray-500 text-xs tabular-nums">
+        <span className="text-blue-300/30 text-xs tabular-nums">
           {articleCount} articles
         </span>
-        <span className="ml-auto text-gray-500 text-[10px] border border-gray-700/40 px-2.5 py-0.5 rounded-full bg-gray-800/30">
+        <span className="ml-auto text-blue-300/20 text-[10px] border border-blue-800/20 px-2.5 py-0.5 rounded-full">
           Locked
         </span>
       </div>
@@ -68,35 +68,35 @@ function NewsCard({
     <div
       className={`border rounded-xl p-3.5 transition-all duration-200 animate-fade-in-up hover:translate-y-[-1px] ${
         isPositive
-          ? "border-green-800/30 bg-gradient-to-r from-green-950/30 to-transparent hover:border-green-700/50 hover:shadow-[0_4px_20px_rgba(34,197,94,0.08)]"
+          ? "border-green-500/15 bg-gradient-to-r from-green-500/8 to-transparent hover:border-green-500/30"
           : isNegative
-            ? "border-red-800/30 bg-gradient-to-r from-red-950/30 to-transparent hover:border-red-700/50 hover:shadow-[0_4px_20px_rgba(239,68,68,0.08)]"
-            : "border-gray-700/30 bg-gray-800/20 hover:border-gray-600/50 hover:shadow-[0_4px_20px_rgba(255,255,255,0.03)]"
-      }`}
+            ? "border-red-500/15 bg-gradient-to-r from-red-500/8 to-transparent hover:border-red-500/30"
+            : "border-[rgba(99,132,199,0.1)] bg-[#162036]/40 hover:border-[rgba(99,132,199,0.2)]"
+      } hover:shadow-lg hover:shadow-black/10`}
       style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }}
     >
       <div className="flex items-start gap-2.5">
         <span
           className={`w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0 ${
             isPositive
-              ? "bg-green-400 shadow-[0_0_6px_rgba(34,197,94,0.5)]"
+              ? "bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.5)]"
               : isNegative
-                ? "bg-red-400 shadow-[0_0_6px_rgba(239,68,68,0.5)]"
-                : "bg-yellow-400 shadow-[0_0_6px_rgba(234,179,8,0.5)]"
+                ? "bg-red-400 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                : "bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.4)]"
           }`}
         />
         <div className="flex-1 min-w-0">
-          <h4 className="text-white text-xs font-medium leading-snug mb-1.5">
+          <h4 className="text-slate-200 text-xs font-medium leading-snug mb-1.5">
             {item.title}
           </h4>
-          <p className="text-gray-400 text-[11px] mb-2 leading-relaxed">
+          <p className="text-blue-200/40 text-[11px] mb-2 leading-relaxed">
             {item.summary}
           </p>
           {item.bullets.length > 0 && (
             <ul className="space-y-1 mb-2.5">
               {item.bullets.map((b, i) => (
-                <li key={i} className="text-[11px] text-gray-400 flex items-start gap-1.5">
-                  <span className={`mt-0.5 ${isPositive ? "text-green-500" : isNegative ? "text-red-500" : "text-yellow-500"}`}>
+                <li key={i} className="text-[11px] text-blue-200/50 flex items-start gap-1.5">
+                  <span className={`mt-0.5 ${isPositive ? "text-green-500" : isNegative ? "text-red-500" : "text-amber-500"}`}>
                     {isPositive ? "+" : isNegative ? "-" : "~"}
                   </span>
                   {b}
@@ -105,7 +105,7 @@ function NewsCard({
             </ul>
           )}
           <div className="flex items-center gap-3 text-[10px]">
-            <span className="text-gray-500">{item.source}</span>
+            <span className="text-blue-300/25">{item.source}</span>
             <span
               className={`font-medium tabular-nums ${
                 item.returnT1 >= 0 ? "text-green-400" : "text-red-400"
@@ -124,7 +124,7 @@ function NewsCard({
             </span>
             <button
               onClick={onFindSimilar}
-              className="ml-auto text-cyan-500 hover:text-cyan-300 transition-all duration-200 hover:drop-shadow-[0_0_6px_rgba(34,211,238,0.5)] font-medium"
+              className="ml-auto text-blue-400 hover:text-blue-300 transition-all duration-200 hover:drop-shadow-[0_0_6px_rgba(96,165,250,0.5)] font-medium"
             >
               Find Similar
             </button>

@@ -14,7 +14,6 @@ function findSimilarDays(
   candles: StockCandle[],
   allNews: NewsItem[]
 ): SimilarDay[] {
-  // Find days with similar category news
   const dateSet = new Set<string>();
   allNews.forEach((n) => {
     if (
@@ -67,38 +66,38 @@ export default function SimilarDaysPanel({
     <div className="glass-card rounded-xl p-4 animate-fade-in-up">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium">Similar Days</span>
-          <span className="bg-gray-700 text-cyan-400 text-xs px-2 py-0.5 rounded">
+          <span className="text-slate-200 text-sm font-semibold">Similar Days</span>
+          <span className="bg-blue-500/10 text-blue-400 text-xs px-2.5 py-0.5 rounded-full border border-blue-500/20 font-mono">
             {newsItem.date}
           </span>
         </div>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-white text-xs"
+          className="text-blue-300/30 hover:text-white text-xs transition-colors"
         >
           Close
         </button>
       </div>
 
       <div className="mb-3">
-        <div className="text-gray-400 text-xs font-medium mb-1.5">
-          HISTORICAL PATTERN ({similarDays.length} SIMILAR DAYS)
+        <div className="text-blue-300/45 text-xs font-semibold mb-2 tracking-widest uppercase">
+          Historical Pattern ({similarDays.length} similar days)
         </div>
-        <div className="flex gap-4 text-xs">
+        <div className="flex gap-6 text-xs">
           <div>
-            <span className="text-green-400 text-lg font-bold">
+            <span className="text-green-400 text-xl font-bold">
               {((upCount / (similarDays.length || 1)) * 100).toFixed(0)}%
             </span>
-            <span className="text-gray-500 ml-1">up</span>
+            <span className="text-blue-300/30 ml-1.5">up</span>
           </div>
           <div>
-            <span className="text-red-400 text-lg font-bold">
+            <span className="text-red-400 text-xl font-bold">
               {((downCount / (similarDays.length || 1)) * 100).toFixed(0)}%
             </span>
-            <span className="text-gray-500 ml-1">down</span>
+            <span className="text-blue-300/30 ml-1.5">down</span>
           </div>
         </div>
-        <div className="text-gray-400 text-[11px] mt-1">
+        <div className="text-blue-200/30 text-[11px] mt-1">
           Avg return:{" "}
           <span
             className={
@@ -111,19 +110,19 @@ export default function SimilarDaysPanel({
         </div>
       </div>
 
-      <div className="text-gray-400 text-xs font-medium mb-1.5">
-        SIMILAR DAYS
+      <div className="text-blue-300/45 text-xs font-semibold mb-2 tracking-widest uppercase">
+        Similar Days
       </div>
-      <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+      <div className="space-y-1.5 max-h-[200px] overflow-y-auto custom-scrollbar">
         {similarDays.map((day, idx) => (
           <div
             key={day.date}
-            className="flex items-center justify-between bg-gray-800/40 rounded-lg px-2.5 py-1.5 text-[11px] transition-smooth hover:bg-gray-800/60 animate-fade-in"
+            className="flex items-center justify-between bg-[#162036]/60 rounded-lg px-3 py-2 text-[11px] transition-all duration-150 hover:bg-[#1c2a46] animate-fade-in"
             style={{ animationDelay: `${idx * 40}ms` }}
           >
-            <span className="text-gray-300 font-mono">{day.date}</span>
-            <span className="text-cyan-400">sim {day.similarity}%</span>
-            <span className="text-gray-500">{day.newsCount} news</span>
+            <span className="text-slate-300/70 font-mono">{day.date}</span>
+            <span className="text-blue-400/70">sim {day.similarity}%</span>
+            <span className="text-blue-300/30">{day.newsCount} news</span>
             <span
               className={
                 day.returnT1 >= 0 ? "text-green-400" : "text-red-400"
