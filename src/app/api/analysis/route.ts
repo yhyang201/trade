@@ -3,6 +3,8 @@ import { generateForecast, generateRangeAnalysis } from "@/lib/ai";
 import { generateStockData, generateNewsData } from "@/lib/mockData";
 import type { ForecastResult, RangeAnalysis, NewsItem } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 // Local fallback forecast (no AI needed)
 function fallbackForecast(
   symbol: string,

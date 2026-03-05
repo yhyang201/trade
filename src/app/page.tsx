@@ -41,10 +41,12 @@ export default function Home() {
   const [similarNewsItem, setSimilarNewsItem] = useState<NewsItem | null>(
     null
   );
+  const [loading, setLoading] = useState(true);
 
   // Load stock and news data
   useEffect(() => {
     async function loadData() {
+      setLoading(true);
       const [stockRes, newsRes] = await Promise.all([
         fetch(`/api/stock?symbol=${symbol}`),
         fetch(`/api/news?symbol=${symbol}`),
@@ -58,6 +60,7 @@ export default function Home() {
       setSimilarNewsItem(null);
       setSelectedCategory(null);
       setSentimentFilter("all");
+      setLoading(false);
     }
     loadData();
   }, [symbol]);
@@ -122,37 +125,54 @@ export default function Home() {
   const currentPrice = candles.length
     ? candles[candles.length - 1].close
     : 0;
+  const prevPrice = candles.length > 1
+    ? candles[candles.length - 2].close
+    : currentPrice;
+  const priceChange = currentPrice - prevPrice;
+  const priceChangePct = prevPrice ? (priceChange / prevPrice) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-[#0a0e17]">
       {/* Header */}
-      <header className="border-b border-gray-800/60 px-4 py-2.5 flex items-center gap-4 backdrop-blur-sm bg-[#0a0e17]/80 sticky top-0 z-40">
-        <h1 className="text-white font-bold text-lg tracking-wide animate-fade-in">
-          <span className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">K</span>Story
+      <header className="border-b border-gray-800/50 px-5 py-2.5 flex items-center gap-4 backdrop-blur-md bg-[#0a0e17]/90 sticky top-0 z-40">
+        <h1 className="text-white font-bold text-lg tracking-wide animate-fade-in select-none">
+          <span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">K</span>
+          <span className="text-gray-200">Story</span>
         </h1>
         <StockSelector symbol={symbol} onSelect={setSymbol} />
         {currentPrice > 0 && (
-          <span className="text-gray-400 text-sm ml-2 font-mono animate-fade-in">
-            ${currentPrice.toFixed(2)}
-          </span>
+          <div className="flex items-center gap-2 animate-fade-in">
+            <span className="text-white text-sm font-semibold font-mono">
+              ${currentPrice.toFixed(2)}
+            </span>
+            <span className={`text-xs font-medium font-mono px-1.5 py-0.5 rounded ${
+              priceChange >= 0
+                ? "text-green-400 bg-green-900/20"
+                : "text-red-400 bg-red-900/20"
+            }`}>
+              {priceChange >= 0 ? "+" : ""}{priceChange.toFixed(2)} ({priceChangePct >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
+            </span>
+          </div>
         )}
         <div className="ml-auto flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse-glow" />
-          <span className="text-green-400 text-[10px] font-medium">LIVE</span>
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+          <span className="text-green-400 text-[10px] font-semibold tracking-wider">LIVE</span>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row gap-0">
+      <div className="flex flex-col lg:flex-row">
         {/* Left Panel */}
-        <div className="flex-1 p-4 min-w-0 animate-fade-in-up">
+        <div className="flex-1 p-4 min-w-0">
           {/* Chart */}
-          <CandlestickChart
-            candles={candles}
-            news={filteredNews}
-            onDateClick={handleDateClick}
-            onRangeSelect={handleRangeSelect}
-          />
+          <div className="animate-fade-in-up">
+            <CandlestickChart
+              candles={candles}
+              news={filteredNews}
+              onDateClick={handleDateClick}
+              onRangeSelect={handleRangeSelect}
+            />
+          </div>
 
           {/* Category Filters */}
           <div className="mt-4">
@@ -166,7 +186,7 @@ export default function Home() {
           </div>
 
           {/* News / Range Analysis / Similar Days */}
-          <div className="mt-3">
+          <div className="mt-1">
             {rangeAnalysis || rangeLoading ? (
               <RangeAnalysisPanel
                 analysis={rangeAnalysis}
@@ -191,7 +211,7 @@ export default function Home() {
         </div>
 
         {/* Right Panel */}
-        <div className="w-full lg:w-[340px] border-l border-gray-800/60 p-4 space-y-4 animate-slide-in-right">
+        <div className="w-full lg:w-[360px] border-l border-gray-800/40 p-5">
           <ForecastPanel
             forecast={forecast}
             period={forecastPeriod}
