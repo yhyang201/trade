@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "StockLens - AI-Powered Stock News Analysis",
-  description: "See the story behind every K-line movement",
+  title: "KStory - The Story Behind Every K-Line",
+  description: "AI-powered stock news analysis - see the story behind every K-line movement",
 };
 
 export default function RootLayout({

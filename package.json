@@ -1,16 +1,11 @@
 {
-  "name": "stocklens",
+  "name": "kstory",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^25.3.3",

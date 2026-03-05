@@ -128,7 +128,7 @@ export default function Home() {
       {/* Header */}
       <header className="border-b border-gray-800 px-4 py-2 flex items-center gap-4">
         <h1 className="text-white font-bold text-lg tracking-wide">
-          <span className="text-cyan-400">Stock</span>Lens
+          <span className="text-cyan-400">K</span>Story
         </h1>
         <StockSelector symbol={symbol} onSelect={setSymbol} />
         {currentPrice > 0 && (

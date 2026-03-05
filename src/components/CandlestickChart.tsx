@@ -308,7 +308,7 @@ function RangePopup({
         </span>
       </div>
       <div className="text-cyan-400 text-xs font-medium mb-2">
-        Ask StockLens
+        Ask KStory
       </div>
       <div className="space-y-1.5 mb-3">
         {[

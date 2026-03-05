@@ -96,7 +96,7 @@ Return JSON with this exact structure:
   "direction": "up" or "down",
   "confidence": number 40-95,
   "label": "Bullish" or "Bearish",
-  "analysis": "Chinese language analysis paragraph about the stock outlook based on news, under 200 chars. Include specific numbers and reasoning.",
+  "analysis": "English analysis paragraph about the stock outlook based on news, under 200 chars. Include specific numbers and reasoning.",
   "t1": {"direction": "up" or "down", "confidence": number},
   "t3": {"direction": "up" or "down", "confidence": number},
   "t5": {"direction": "up" or "down", "confidence": number},
@@ -159,10 +159,10 @@ Return JSON:
 {
   "dateRange": "${startDate} ~ ${endDate}",
   "percentChange": ${percentChange},
-  "summary": "Chinese language summary of the analysis, 2-3 sentences",
-  "keyEvents": ["event1 in Chinese", "event2", ...up to 5],
-  "bullishFactors": ["factor1 in Chinese with date", ...up to 5],
-  "bearishFactors": ["factor1 in Chinese with date", ...up to 5]
+  "summary": "English summary of the analysis, 2-3 sentences",
+  "keyEvents": ["event1 with date", "event2", ...up to 5],
+  "bullishFactors": ["factor1 with date", ...up to 5],
+  "bearishFactors": ["factor1 with date", ...up to 5]
 }`;
 
   try {

@@ -23,7 +23,7 @@ function fallbackForecast(
     direction: direction as "up" | "down",
     confidence,
     label: direction === "up" ? "Bullish" : "Bearish",
-    analysis: `${symbol}近期共${recent.length}条相关新闻，${posCount}条正面/${negCount}条负面，整体情绪${bullishRatio > 0.5 ? "偏多" : "偏空"}。模型短期(T+1)预测${direction === "up" ? "看涨" : "看跌"}，置信度${confidence}%。历史上相似时段中，${direction === "up" ? "70" : "30"}%在随后5天上涨。综合多信号研判：${direction === "up" ? "偏看涨" : "偏看跌"}。`,
+    analysis: `${symbol} recent ${recent.length} news items: ${posCount} positive / ${negCount} negative. Overall sentiment ${bullishRatio > 0.5 ? "leaning bullish" : "leaning bearish"}. Short-term (T+1) forecast: ${direction === "up" ? "bullish" : "bearish"}, confidence ${confidence}%. In ${direction === "up" ? "70" : "30"}% of similar historical periods, price rose within 5 days. Multi-signal assessment: ${direction === "up" ? "moderately bullish" : "moderately bearish"}.`,
     t1: { direction: direction as "up" | "down", confidence },
     t3: {
       direction: direction as "up" | "down",
@@ -58,12 +58,12 @@ function fallbackRangeAnalysis(
   );
   const bullish = rangeNews.filter((n) => n.sentiment === "positive");
   const bearish = rangeNews.filter((n) => n.sentiment === "negative");
-  const direction = percentChange >= 0 ? "上涨" : "下跌";
+  const direction = percentChange >= 0 ? "rose" : "fell";
 
   return {
     dateRange: `${startDate} ~ ${endDate}`,
     percentChange,
-    summary: `在${startDate}至${endDate}期间，${symbol}${direction}${Math.abs(percentChange).toFixed(2)}%。期间共${rangeNews.length}条新闻，${bullish.length}条利好，${bearish.length}条利空。${bearish.length > bullish.length ? "利空因素占主导。" : "利好因素占主导。"}`,
+    summary: `During ${startDate} to ${endDate}, ${symbol} ${direction} ${Math.abs(percentChange).toFixed(2)}%. ${rangeNews.length} total news items: ${bullish.length} bullish, ${bearish.length} bearish. ${bearish.length > bullish.length ? "Bearish factors dominated." : "Bullish factors dominated."}`,
     keyEvents: rangeNews.slice(0, 5).map((n) => `${n.date}: ${n.title}`),
     bullishFactors: bullish
       .slice(0, 5)

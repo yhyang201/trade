@@ -7,12 +7,12 @@ const CATEGORIES: {
   label: string;
   icon: string;
 }[] = [
-  { key: "market", label: "市场影响", icon: "📊" },
-  { key: "policy", label: "政策影响", icon: "🏛" },
-  { key: "earnings", label: "业绩财报", icon: "💰" },
-  { key: "product", label: "产品科技", icon: "🔧" },
-  { key: "competition", label: "行业竞争", icon: "⚔" },
-  { key: "management", label: "管理层变动", icon: "👔" },
+  { key: "market", label: "Market", icon: "📊" },
+  { key: "policy", label: "Policy", icon: "🏛" },
+  { key: "earnings", label: "Earnings", icon: "💰" },
+  { key: "product", label: "Product & Tech", icon: "🔧" },
+  { key: "competition", label: "Competition", icon: "⚔" },
+  { key: "management", label: "Management", icon: "👔" },
 ];
 
 interface Props {
@@ -66,7 +66,7 @@ export default function CategoryFilter({
           >
             <span>{cat.icon}</span>
             <span className="font-medium">{cat.label}</span>
-            <span className="text-gray-500 ml-auto">{cat.count} 篇</span>
+            <span className="text-gray-500 ml-auto">{cat.count}</span>
           </button>
         ))}
       </div>
@@ -79,7 +79,7 @@ export default function CategoryFilter({
               : "bg-gray-800 text-gray-400 hover:bg-gray-700"
           }`}
         >
-          全部 {allCount}
+          All {allCount}
         </button>
         <button
           onClick={() => onSentimentFilter("positive")}
@@ -89,7 +89,7 @@ export default function CategoryFilter({
               : "bg-gray-800 text-gray-400 hover:bg-gray-700"
           }`}
         >
-          ▲ 利好 {positiveCount}
+          ▲ Bullish {positiveCount}
         </button>
         <button
           onClick={() => onSentimentFilter("negative")}
@@ -99,7 +99,7 @@ export default function CategoryFilter({
               : "bg-gray-800 text-gray-400 hover:bg-gray-700"
           }`}
         >
-          ▼ 利空 {negativeCount}
+          ▼ Bearish {negativeCount}
         </button>
       </div>
     </div>
