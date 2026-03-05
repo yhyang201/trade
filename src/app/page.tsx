@@ -34,16 +34,11 @@ export default function Home() {
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
   const [forecastPeriod, setForecastPeriod] = useState<"7d" | "30d">("7d");
   const [forecastLoading, setForecastLoading] = useState(false);
-  const [rangeAnalysis, setRangeAnalysis] = useState<RangeAnalysis | null>(
-    null
-  );
+  const [rangeAnalysis, setRangeAnalysis] = useState<RangeAnalysis | null>(null);
   const [rangeLoading, setRangeLoading] = useState(false);
-  const [similarNewsItem, setSimilarNewsItem] = useState<NewsItem | null>(
-    null
-  );
+  const [similarNewsItem, setSimilarNewsItem] = useState<NewsItem | null>(null);
   const [chartLoading, setChartLoading] = useState(true);
 
-  // Load stock and news data
   useEffect(() => {
     async function loadData() {
       setChartLoading(true);
@@ -65,7 +60,6 @@ export default function Home() {
     loadData();
   }, [symbol]);
 
-  // Load forecast
   useEffect(() => {
     async function loadForecast() {
       setForecastLoading(true);
@@ -81,11 +75,9 @@ export default function Home() {
     loadForecast();
   }, [symbol, forecastPeriod]);
 
-  // Filter news
   const filteredNews = allNews.filter((n) => {
     if (selectedCategory && n.category !== selectedCategory) return false;
-    if (sentimentFilter !== "all" && n.sentiment !== sentimentFilter)
-      return false;
+    if (sentimentFilter !== "all" && n.sentiment !== sentimentFilter) return false;
     return true;
   });
 
@@ -102,13 +94,7 @@ export default function Home() {
       const res = await fetch("/api/analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          symbol,
-          type: "range",
-          startDate: start,
-          endDate: end,
-          percentChange,
-        }),
+        body: JSON.stringify({ symbol, type: "range", startDate: start, endDate: end, percentChange }),
       });
       const data = await res.json();
       setRangeAnalysis(data);
@@ -122,49 +108,43 @@ export default function Home() {
     setRangeAnalysis(null);
   }, []);
 
-  const currentPrice = candles.length
-    ? candles[candles.length - 1].close
-    : 0;
-  const prevPrice = candles.length > 1
-    ? candles[candles.length - 2].close
-    : currentPrice;
+  const currentPrice = candles.length ? candles[candles.length - 1].close : 0;
+  const prevPrice = candles.length > 1 ? candles[candles.length - 2].close : currentPrice;
   const priceChange = currentPrice - prevPrice;
   const priceChangePct = prevPrice ? (priceChange / prevPrice) * 100 : 0;
 
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="border-b border-[rgba(99,132,199,0.1)] px-5 py-2.5 flex items-center gap-4 backdrop-blur-md bg-[#0f1729]/80 sticky top-0 z-40">
-        <h1 className="text-white font-bold text-lg tracking-wide select-none">
-          <span className="text-blue-400 drop-shadow-[0_0_12px_rgba(96,165,250,0.5)]">K</span>
-          <span className="text-slate-200">Story</span>
+      <header className="border-b border-slate-200/80 px-5 py-2.5 flex items-center gap-4 backdrop-blur-md bg-white/70 sticky top-0 z-40">
+        <h1 className="font-bold text-lg tracking-wide select-none">
+          <span className="text-blue-600 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">K</span>
+          <span className="text-slate-800">Story</span>
         </h1>
         <StockSelector symbol={symbol} onSelect={setSymbol} />
         {currentPrice > 0 && (
           <div className="flex items-center gap-2 animate-fade-in" key={symbol}>
-            <span className="text-white text-sm font-semibold font-mono">
+            <span className="text-slate-800 text-sm font-semibold font-mono">
               ${currentPrice.toFixed(2)}
             </span>
             <span className={`text-xs font-medium font-mono px-2 py-0.5 rounded-md ${
               priceChange >= 0
-                ? "text-green-400 bg-green-500/10"
-                : "text-red-400 bg-red-500/10"
+                ? "text-emerald-600 bg-emerald-50"
+                : "text-red-600 bg-red-50"
             }`}>
               {priceChange >= 0 ? "+" : ""}{priceChange.toFixed(2)} ({priceChangePct >= 0 ? "+" : ""}{priceChangePct.toFixed(2)}%)
             </span>
           </div>
         )}
         <div className="ml-auto flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-          <span className="text-green-400 text-[10px] font-semibold tracking-wider">LIVE</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-glow" />
+          <span className="text-emerald-600 text-[10px] font-semibold tracking-wider">LIVE</span>
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex flex-col lg:flex-row">
         {/* Left Panel */}
         <div className="flex-1 p-4 min-w-0">
-          {/* Chart */}
           <div className="animate-fade-in-up">
             <CandlestickChart
               candles={candles}
@@ -175,7 +155,6 @@ export default function Home() {
             />
           </div>
 
-          {/* Category Filters */}
           <div className="mt-4">
             <CategoryFilter
               news={allNews}
@@ -186,7 +165,6 @@ export default function Home() {
             />
           </div>
 
-          {/* News / Range Analysis / Similar Days */}
           <div className="mt-1">
             {rangeAnalysis || rangeLoading ? (
               <RangeAnalysisPanel
@@ -212,7 +190,7 @@ export default function Home() {
         </div>
 
         {/* Right Panel */}
-        <div className="w-full lg:w-[360px] border-l border-[rgba(99,132,199,0.1)] p-5 animate-slide-in-right">
+        <div className="w-full lg:w-[360px] border-l border-slate-200/60 p-5 animate-slide-in-right">
           <ForecastPanel
             forecast={forecast}
             period={forecastPeriod}

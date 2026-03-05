@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchCompanyNews, categorizeByKeywords } from "@/lib/finnhub";
-import { classifyNewsWithAI } from "@/lib/ai";
 import { generateStockData, generateNewsData } from "@/lib/mockData";
 import type { NewsItem } from "@/types";
 
@@ -24,41 +23,19 @@ export async function GET(req: NextRequest) {
         throw new Error("No news returned");
       }
 
-      // Try AI classification, fallback to keyword-based
-      let classifications: {
-        category: string;
-        sentiment: string;
-        bullets: string[];
-      }[] = [];
-
-      if (process.env.MOONSHOT_API_KEY) {
-        classifications = await classifyNewsWithAI(
-          rawNews.map((n) => ({ title: n.title, summary: n.summary }))
-        );
-      }
-
+      // Always use keyword-based classification (fast, reliable)
+      // AI classification was returning all "market"/"neutral" so we skip it
       const news: NewsItem[] = rawNews.map((raw, i) => {
-        const aiResult = classifications[i];
-        const keywordResult = categorizeByKeywords(raw.title, raw.summary);
-
-        const category = aiResult
-          ? (aiResult.category as NewsItem["category"])
-          : keywordResult.category;
-        const sentiment = aiResult
-          ? (aiResult.sentiment as NewsItem["sentiment"])
-          : keywordResult.sentiment;
-        const bullets = aiResult?.bullets?.length
-          ? aiResult.bullets
-          : [raw.summary.slice(0, 80)];
+        const kw = categorizeByKeywords(raw.title, raw.summary);
 
         return {
           id: `${symbol}-${i}`,
           date: raw.date,
           title: raw.title,
           summary: raw.summary.slice(0, 200),
-          bullets,
-          category,
-          sentiment,
+          bullets: [raw.summary.slice(0, 100)],
+          category: kw.category,
+          sentiment: kw.sentiment,
           source: raw.source,
           url: raw.url,
           imageUrl: raw.imageUrl,
@@ -107,7 +84,6 @@ export async function GET(req: NextRequest) {
         // Stock data not available, returns stay at 0
       }
 
-      // Debug mode: show classification details
       if (debug) {
         const cats: Record<string, number> = {};
         const sents: Record<string, number> = {};
@@ -117,15 +93,12 @@ export async function GET(req: NextRequest) {
         }
         return NextResponse.json({
           _debug: {
-            version: "v3-scoring",
+            version: "v4-keyword-only",
             totalNews: rawNews.length,
-            hasAI: !!process.env.MOONSHOT_API_KEY,
-            aiClassifications: classifications.length,
             categories: cats,
             sentiments: sents,
-            sample: rawNews.slice(0, 3).map((r) => ({
+            sample: rawNews.slice(0, 5).map((r) => ({
               title: r.title.slice(0, 80),
-              summary: r.summary.slice(0, 80),
               classified: categorizeByKeywords(r.title, r.summary),
             })),
           },
@@ -142,26 +115,5 @@ export async function GET(req: NextRequest) {
   // Fallback to mock data
   const candles = generateStockData(symbol);
   const news = generateNewsData(symbol, candles);
-
-  if (debug) {
-    const cats: Record<string, number> = {};
-    const sents: Record<string, number> = {};
-    for (const n of news) {
-      cats[n.category] = (cats[n.category] || 0) + 1;
-      sents[n.sentiment] = (sents[n.sentiment] || 0) + 1;
-    }
-    return NextResponse.json({
-      _debug: {
-        version: "v3-scoring",
-        source: "mock",
-        hasFinnhub: !!process.env.FINNHUB_API_KEY,
-        totalNews: news.length,
-        categories: cats,
-        sentiments: sents,
-      },
-      news: news.slice(0, 5),
-    });
-  }
-
   return NextResponse.json(news);
 }

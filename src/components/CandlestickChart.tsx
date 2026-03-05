@@ -62,34 +62,27 @@ export default function CandlestickChart({
 
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { color: "#0f1729" },
-        textColor: "#7b8ab5",
+        background: { color: "#ffffff" },
+        textColor: "#94a3b8",
       },
       grid: {
-        vertLines: { color: "rgba(99, 132, 199, 0.06)" },
-        horzLines: { color: "rgba(99, 132, 199, 0.06)" },
+        vertLines: { color: "rgba(148, 163, 184, 0.08)" },
+        horzLines: { color: "rgba(148, 163, 184, 0.08)" },
       },
-      crosshair: {
-        mode: 0,
-      },
-      rightPriceScale: {
-        borderColor: "rgba(99, 132, 199, 0.15)",
-      },
-      timeScale: {
-        borderColor: "rgba(99, 132, 199, 0.15)",
-        timeVisible: false,
-      },
+      crosshair: { mode: 0 },
+      rightPriceScale: { borderColor: "rgba(148, 163, 184, 0.15)" },
+      timeScale: { borderColor: "rgba(148, 163, 184, 0.15)", timeVisible: false },
       width: chartContainerRef.current.clientWidth,
       height: 400,
     });
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "#22c55e",
-      downColor: "#ef4444",
-      borderUpColor: "#22c55e",
-      borderDownColor: "#ef4444",
-      wickUpColor: "#22c55e",
-      wickDownColor: "#ef4444",
+      upColor: "#16a34a",
+      downColor: "#dc2626",
+      borderUpColor: "#16a34a",
+      borderDownColor: "#dc2626",
+      wickUpColor: "#16a34a",
+      wickDownColor: "#dc2626",
     });
 
     const candleData: CandlestickData<Time>[] = candles.map((c) => ({
@@ -102,24 +95,17 @@ export default function CandlestickChart({
 
     candleSeries.setData(candleData);
 
-    // Add news markers
     const markers = candles
       .filter((c) => newsMapRef.current.has(c.time))
       .map((c) => {
         const items = newsMapRef.current.get(c.time)!;
-        const posCount = items.filter(
-          (n) => n.sentiment === "positive"
-        ).length;
-        const negCount = items.filter(
-          (n) => n.sentiment === "negative"
-        ).length;
+        const posCount = items.filter((n) => n.sentiment === "positive").length;
+        const negCount = items.filter((n) => n.sentiment === "negative").length;
         const isPositive = posCount >= negCount;
         return {
           time: c.time as Time,
-          position: isPositive
-            ? ("belowBar" as const)
-            : ("aboveBar" as const),
-          color: isPositive ? "#22c55e" : "#ef4444",
+          position: isPositive ? ("belowBar" as const) : ("aboveBar" as const),
+          color: isPositive ? "#16a34a" : "#dc2626",
           shape: "circle" as const,
           size: 0.5,
         };
@@ -130,7 +116,6 @@ export default function CandlestickChart({
     chartRef.current = chart;
     candleSeriesRef.current = candleSeries;
 
-    // Handle crosshair move for tooltip
     chart.subscribeCrosshairMove((param: MouseEventParams<Time>) => {
       if (!param.time || !param.point) {
         setTooltip(null);
@@ -139,33 +124,24 @@ export default function CandlestickChart({
       const dateStr = param.time as string;
       const items = newsMapRef.current.get(dateStr);
       if (items && items.length > 0) {
-        setTooltip({
-          x: param.point.x,
-          y: param.point.y,
-          newsItem: items[0],
-        });
+        setTooltip({ x: param.point.x, y: param.point.y, newsItem: items[0] });
       } else {
         setTooltip(null);
       }
     });
 
-    // Handle click for date selection and range
     chart.subscribeClick((param: MouseEventParams<Time>) => {
       if (!param.time) return;
-      const dateStr = param.time as string;
-      onDateClick(dateStr);
+      onDateClick(param.time as string);
     });
 
     const handleResize = () => {
       if (chartContainerRef.current) {
-        chart.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-        });
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
       }
     };
 
     window.addEventListener("resize", handleResize);
-
     return () => {
       window.removeEventListener("resize", handleResize);
       chart.remove();
@@ -175,7 +151,6 @@ export default function CandlestickChart({
   const handleRangeClick = useCallback(
     (e: React.MouseEvent) => {
       if (!chartRef.current || !candleSeriesRef.current) return;
-
       const chart = chartRef.current;
       const rect = chartContainerRef.current!.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -194,9 +169,7 @@ export default function CandlestickChart({
         const startCandle = candles.find((c) => c.time === start);
         const endCandle = candles.find((c) => c.time === end);
         if (startCandle && endCandle) {
-          const pct =
-            ((endCandle.close - startCandle.open) / startCandle.open) *
-            100;
+          const pct = ((endCandle.close - startCandle.open) / startCandle.open) * 100;
           setRangePopup({
             x: e.clientX - rect.left,
             y: e.clientY - rect.top,
@@ -212,7 +185,7 @@ export default function CandlestickChart({
   );
 
   return (
-    <div className="relative rounded-xl overflow-hidden border border-[rgba(99,132,199,0.1)]">
+    <div className="relative rounded-xl overflow-hidden border border-slate-200/80 bg-white shadow-sm">
       <div
         ref={chartContainerRef}
         onDoubleClick={handleRangeClick}
@@ -222,21 +195,20 @@ export default function CandlestickChart({
       {/* Loading Overlay */}
       {loading && (
         <div className="absolute inset-0 chart-loading-overlay z-30 flex flex-col items-center justify-center gap-4 rounded-xl">
-          {/* Animated bar chart icon */}
           <div className="flex items-end gap-1.5 h-10">
             {[0, 1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="chart-loading-bar w-2 rounded-full"
+                className="chart-loading-bar w-2.5 rounded-full"
                 style={{
                   height: "100%",
-                  background: `linear-gradient(to top, ${i % 2 === 0 ? '#22c55e' : '#3b82f6'}, ${i % 2 === 0 ? '#4ade80' : '#60a5fa'})`,
-                  opacity: 0.8,
+                  background: `linear-gradient(to top, ${i % 2 === 0 ? '#16a34a' : '#3b82f6'}, ${i % 2 === 0 ? '#4ade80' : '#93c5fd'})`,
+                  opacity: 0.7,
                 }}
               />
             ))}
           </div>
-          <div className="text-sm text-blue-300/80 font-medium tracking-wide animate-breathe">
+          <div className="text-sm text-blue-500/70 font-medium tracking-wide animate-breathe">
             Loading chart data...
           </div>
         </div>
@@ -244,51 +216,40 @@ export default function CandlestickChart({
 
       {tooltip && (
         <div
-          className="absolute pointer-events-none bg-[#162036]/95 border border-blue-800/30 rounded-xl p-3 text-xs max-w-[280px] z-10 shadow-xl shadow-black/20"
+          className="absolute pointer-events-none bg-white/95 border border-slate-200 rounded-xl p-3 text-xs max-w-[280px] z-10 shadow-lg"
           style={{ left: tooltip.x + 15, top: tooltip.y - 60 }}
         >
-          <div className="text-white font-medium mb-1 leading-tight">
+          <div className="text-slate-800 font-medium mb-1 leading-tight">
             {tooltip.newsItem.title}
           </div>
-          <div
-            className={`font-semibold ${
-              tooltip.newsItem.sentiment === "positive"
-                ? "text-green-400"
-                : tooltip.newsItem.sentiment === "negative"
-                  ? "text-red-400"
-                  : "text-yellow-400"
-            }`}
-          >
-            {tooltip.newsItem.sentiment === "positive"
-              ? "Positive"
-              : tooltip.newsItem.sentiment === "negative"
-                ? "Negative"
-                : "Neutral"}{" "}
-            T+1: {tooltip.newsItem.returnT1 > 0 ? "+" : ""}
-            {tooltip.newsItem.returnT1}%
+          <div className={`font-semibold ${
+            tooltip.newsItem.sentiment === "positive" ? "text-emerald-600"
+              : tooltip.newsItem.sentiment === "negative" ? "text-red-600"
+              : "text-amber-600"
+          }`}>
+            {tooltip.newsItem.sentiment === "positive" ? "Positive"
+              : tooltip.newsItem.sentiment === "negative" ? "Negative"
+              : "Neutral"}{" "}
+            T+1: {tooltip.newsItem.returnT1 > 0 ? "+" : ""}{tooltip.newsItem.returnT1}%
           </div>
         </div>
       )}
       {rangeStart && (
-        <div className="absolute top-3 right-3 bg-blue-600/90 text-white text-xs px-3 py-1.5 rounded-full shadow-lg shadow-blue-900/30 animate-fade-in font-medium">
+        <div className="absolute top-3 right-3 bg-blue-500 text-white text-xs px-3 py-1.5 rounded-full shadow-lg animate-fade-in font-medium">
           Range start: {rangeStart} — double-click end point
         </div>
       )}
       {rangePopup && (
         <RangePopup
           {...rangePopup}
-          onAsk={(question) => {
-            onRangeSelect(
-              rangePopup.start,
-              rangePopup.end,
-              rangePopup.percentChange
-            );
+          onAsk={() => {
+            onRangeSelect(rangePopup.start, rangePopup.end, rangePopup.percentChange);
             setRangePopup(null);
           }}
           onClose={() => setRangePopup(null)}
         />
       )}
-      <div className="absolute bottom-2 left-3 text-[10px] text-blue-400/40">
+      <div className="absolute bottom-2 left-3 text-[10px] text-slate-400/60">
         Double-click twice to select a date range for AI analysis
       </div>
     </div>
@@ -296,55 +257,31 @@ export default function CandlestickChart({
 }
 
 function RangePopup({
-  x,
-  y,
-  start,
-  end,
-  percentChange,
-  onAsk,
-  onClose,
+  x, y, start, end, percentChange, onAsk, onClose,
 }: {
-  x: number;
-  y: number;
-  start: string;
-  end: string;
-  percentChange: number;
-  onAsk: (question?: string) => void;
-  onClose: () => void;
+  x: number; y: number; start: string; end: string; percentChange: number;
+  onAsk: (question?: string) => void; onClose: () => void;
 }) {
   const [question, setQuestion] = useState("");
 
   return (
     <div
-      className="absolute bg-[#162036]/95 backdrop-blur-xl border border-blue-800/30 rounded-xl p-4 z-20 w-[300px] shadow-2xl shadow-black/30 animate-fade-in-up"
+      className="absolute bg-white/98 backdrop-blur-xl border border-slate-200 rounded-xl p-4 z-20 w-[300px] shadow-xl animate-fade-in-up"
       style={{ left: Math.min(x, 400), top: Math.max(10, y - 150) }}
     >
       <div className="flex justify-between items-start mb-3">
-        <div className="text-blue-200/80 text-xs font-mono">
-          {start} ~ {end}
-        </div>
-        <span
-          className={`text-sm font-bold ${
-            percentChange >= 0 ? "text-green-400" : "text-red-400"
-          }`}
-        >
-          {percentChange >= 0 ? "+" : ""}
-          {percentChange}%
+        <div className="text-slate-500 text-xs font-mono">{start} ~ {end}</div>
+        <span className={`text-sm font-bold ${percentChange >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+          {percentChange >= 0 ? "+" : ""}{percentChange}%
         </span>
       </div>
-      <div className="text-cyan-400 text-xs font-semibold mb-2.5 tracking-wide">
-        Ask KStory
-      </div>
+      <div className="text-blue-600 text-xs font-semibold mb-2.5 tracking-wide">Ask KStory</div>
       <div className="space-y-1 mb-3">
-        {[
-          "What's driving the price movement?",
-          "Summarize key news in this period",
-          "What are the bull/bear factors?",
-        ].map((q) => (
+        {["What's driving the price movement?", "Summarize key news in this period", "What are the bull/bear factors?"].map((q) => (
           <button
             key={q}
             onClick={() => onAsk(q)}
-            className="block w-full text-left text-xs text-blue-200/70 hover:text-white hover:bg-blue-800/20 px-3 py-2 rounded-lg transition-all duration-150"
+            className="block w-full text-left text-xs text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-150"
           >
             {q}
           </button>
@@ -356,19 +293,13 @@ function RangePopup({
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onAsk(question)}
           placeholder="Ask a question..."
-          className="flex-1 bg-[#0f1729] text-white text-xs px-3 py-2 rounded-lg border border-blue-800/30 outline-none focus:border-blue-500/50 transition-colors placeholder:text-blue-300/30"
+          className="flex-1 bg-slate-50 text-slate-800 text-xs px-3 py-2 rounded-lg border border-slate-200 outline-none focus:border-blue-400 transition-colors placeholder:text-slate-400"
         />
-        <button
-          onClick={() => onAsk(question)}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors"
-        >
+        <button onClick={() => onAsk(question)} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors">
           &rarr;
         </button>
       </div>
-      <button
-        onClick={onClose}
-        className="absolute top-2 right-3 text-blue-300/40 hover:text-white text-sm transition-colors"
-      >
+      <button onClick={onClose} className="absolute top-2 right-3 text-slate-400 hover:text-slate-700 text-sm transition-colors">
         &times;
       </button>
     </div>

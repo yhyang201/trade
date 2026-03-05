@@ -6,15 +6,16 @@ const CATEGORIES: {
   key: NewsCategory;
   label: string;
   icon: string;
-  gradient: string;
+  color: string;
+  activeBg: string;
   activeBorder: string;
 }[] = [
-  { key: "market", label: "Market", icon: "📊", gradient: "from-blue-500/20 to-blue-600/5", activeBorder: "border-blue-500/60 shadow-[0_0_15px_rgba(59,130,246,0.15)]" },
-  { key: "policy", label: "Policy", icon: "🏛️", gradient: "from-violet-500/20 to-violet-600/5", activeBorder: "border-violet-500/60 shadow-[0_0_15px_rgba(139,92,246,0.15)]" },
-  { key: "earnings", label: "Earnings", icon: "💰", gradient: "from-amber-500/20 to-amber-600/5", activeBorder: "border-amber-500/60 shadow-[0_0_15px_rgba(245,158,11,0.15)]" },
-  { key: "product", label: "Product & Tech", icon: "🔧", gradient: "from-cyan-500/20 to-cyan-600/5", activeBorder: "border-cyan-500/60 shadow-[0_0_15px_rgba(6,182,212,0.15)]" },
-  { key: "competition", label: "Competition", icon: "⚔️", gradient: "from-orange-500/20 to-orange-600/5", activeBorder: "border-orange-500/60 shadow-[0_0_15px_rgba(249,115,22,0.15)]" },
-  { key: "management", label: "Management", icon: "👔", gradient: "from-emerald-500/20 to-emerald-600/5", activeBorder: "border-emerald-500/60 shadow-[0_0_15px_rgba(16,185,129,0.15)]" },
+  { key: "market", label: "Market", icon: "📊", color: "text-blue-600", activeBg: "bg-blue-50", activeBorder: "border-blue-300 shadow-blue-100" },
+  { key: "policy", label: "Policy", icon: "🏛️", color: "text-violet-600", activeBg: "bg-violet-50", activeBorder: "border-violet-300 shadow-violet-100" },
+  { key: "earnings", label: "Earnings", icon: "💰", color: "text-amber-600", activeBg: "bg-amber-50", activeBorder: "border-amber-300 shadow-amber-100" },
+  { key: "product", label: "Product & Tech", icon: "🔧", color: "text-cyan-600", activeBg: "bg-cyan-50", activeBorder: "border-cyan-300 shadow-cyan-100" },
+  { key: "competition", label: "Competition", icon: "⚔️", color: "text-orange-600", activeBg: "bg-orange-50", activeBorder: "border-orange-300 shadow-orange-100" },
+  { key: "management", label: "Management", icon: "👔", color: "text-emerald-600", activeBg: "bg-emerald-50", activeBorder: "border-emerald-300 shadow-emerald-100" },
 ];
 
 interface Props {
@@ -26,11 +27,7 @@ interface Props {
 }
 
 export default function CategoryFilter({
-  news,
-  selectedCategory,
-  onCategorySelect,
-  sentimentFilter,
-  onSentimentFilter,
+  news, selectedCategory, onCategorySelect, sentimentFilter, onSentimentFilter,
 }: Props) {
   const categoryCounts = CATEGORIES.map((cat) => ({
     ...cat,
@@ -42,12 +39,8 @@ export default function CategoryFilter({
     : news;
 
   const allCount = filteredByCategory.length;
-  const positiveCount = filteredByCategory.filter(
-    (n) => n.sentiment === "positive"
-  ).length;
-  const negativeCount = filteredByCategory.filter(
-    (n) => n.sentiment === "negative"
-  ).length;
+  const positiveCount = filteredByCategory.filter((n) => n.sentiment === "positive").length;
+  const negativeCount = filteredByCategory.filter((n) => n.sentiment === "negative").length;
 
   return (
     <div>
@@ -57,20 +50,18 @@ export default function CategoryFilter({
           return (
             <button
               key={cat.key}
-              onClick={() =>
-                onCategorySelect(isActive ? null : cat.key)
-              }
+              onClick={() => onCategorySelect(isActive ? null : cat.key)}
               className={`flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-sm transition-all duration-200 border animate-fade-in-up ${
                 isActive
-                  ? `bg-gradient-to-br ${cat.gradient} ${cat.activeBorder} text-white`
-                  : "bg-[#162036]/70 border-[rgba(99,132,199,0.12)] text-blue-100/70 hover:bg-[#1c2a46] hover:border-[rgba(99,132,199,0.25)]"
+                  ? `${cat.activeBg} ${cat.activeBorder} shadow-sm`
+                  : "bg-white/60 border-slate-200/80 hover:bg-white hover:border-slate-300 hover:shadow-sm"
               }`}
               style={{ animationDelay: `${i * 50}ms` }}
             >
-              <span className="text-lg w-8 h-8 flex items-center justify-center rounded-lg bg-white/5">{cat.icon}</span>
+              <span className="text-lg w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50">{cat.icon}</span>
               <div className="flex flex-col items-start min-w-0">
-                <span className="font-medium text-xs leading-tight">{cat.label}</span>
-                <span className={`text-lg font-bold leading-tight tabular-nums ${cat.count > 0 ? "text-blue-300" : "text-blue-300/20"}`}>
+                <span className={`font-medium text-xs leading-tight ${isActive ? cat.color : "text-slate-600"}`}>{cat.label}</span>
+                <span className={`text-lg font-bold leading-tight tabular-nums ${cat.count > 0 ? (isActive ? cat.color : "text-slate-800") : "text-slate-300"}`}>
                   {cat.count}
                 </span>
               </div>
@@ -83,8 +74,8 @@ export default function CategoryFilter({
           onClick={() => onSentimentFilter("all")}
           className={`px-4 py-1.5 text-xs rounded-full transition-all duration-200 font-medium ${
             sentimentFilter === "all"
-              ? "bg-blue-600/30 text-blue-300 border border-blue-500/40"
-              : "bg-[#162036]/50 text-blue-200/40 hover:text-blue-200/70 hover:bg-[#1c2a46]"
+              ? "bg-slate-800 text-white shadow-sm"
+              : "bg-slate-100 text-slate-500 hover:bg-slate-200"
           }`}
         >
           All {allCount}
@@ -93,8 +84,8 @@ export default function CategoryFilter({
           onClick={() => onSentimentFilter("positive")}
           className={`px-4 py-1.5 text-xs rounded-full transition-all duration-200 font-medium ${
             sentimentFilter === "positive"
-              ? "bg-green-500/15 text-green-400 border border-green-500/40 shadow-[0_0_10px_rgba(34,197,94,0.1)]"
-              : "bg-[#162036]/50 text-blue-200/40 hover:text-green-300/70 hover:bg-[#1c2a46]"
+              ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200"
+              : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
           }`}
         >
           ▲ Bullish {positiveCount}
@@ -103,8 +94,8 @@ export default function CategoryFilter({
           onClick={() => onSentimentFilter("negative")}
           className={`px-4 py-1.5 text-xs rounded-full transition-all duration-200 font-medium ${
             sentimentFilter === "negative"
-              ? "bg-red-500/15 text-red-400 border border-red-500/40 shadow-[0_0_10px_rgba(239,68,68,0.1)]"
-              : "bg-[#162036]/50 text-blue-200/40 hover:text-red-300/70 hover:bg-[#1c2a46]"
+              ? "bg-red-500 text-white shadow-sm shadow-red-200"
+              : "bg-red-50 text-red-600 hover:bg-red-100"
           }`}
         >
           ▼ Bearish {negativeCount}
