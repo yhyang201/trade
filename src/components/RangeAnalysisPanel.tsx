@@ -15,17 +15,17 @@ export default function RangeAnalysisPanel({
 }: Props) {
   if (loading) {
     return (
-      <div className="border border-gray-700 rounded-lg p-4">
+      <div className="glass-card rounded-xl p-4 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
           <span className="text-white text-sm font-medium">Range Analysis</span>
           <button onClick={onClose} className="text-gray-500 hover:text-white text-xs">
             Close
           </button>
         </div>
-        <div className="animate-pulse space-y-2">
-          <div className="h-3 bg-gray-700 rounded w-2/3" />
-          <div className="h-3 bg-gray-700 rounded w-1/2" />
-          <div className="h-3 bg-gray-700 rounded w-3/4" />
+        <div className="space-y-2">
+          <div className="h-3 bg-gray-700/60 rounded w-2/3 shimmer" />
+          <div className="h-3 bg-gray-700/60 rounded w-1/2 shimmer" />
+          <div className="h-3 bg-gray-700/60 rounded w-3/4 shimmer" />
         </div>
       </div>
     );
@@ -34,10 +34,10 @@ export default function RangeAnalysisPanel({
   if (!analysis) return null;
 
   return (
-    <div className="border border-gray-700 rounded-lg p-4">
+    <div className="glass-card rounded-xl p-4 animate-fade-in-up">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium">
+          <span className="text-white text-sm font-medium tracking-wide">
             Range Analysis
           </span>
           <span

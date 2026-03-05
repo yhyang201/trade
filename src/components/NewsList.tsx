@@ -25,24 +25,25 @@ export default function NewsList({ news, selectedDate, onFindSimilar }: Props) {
   }
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-gray-400 text-xs font-medium">News</span>
-        <span className="bg-gray-700 text-cyan-400 text-xs px-2 py-0.5 rounded">
+        <span className="text-gray-400 text-xs font-medium tracking-wider uppercase">News</span>
+        <span className="bg-cyan-900/30 text-cyan-400 text-xs px-2.5 py-0.5 rounded-full border border-cyan-800/30">
           {displayDate}
         </span>
-        <span className="text-gray-500 text-xs">
+        <span className="text-gray-500 text-xs tabular-nums">
           {articleCount} articles
         </span>
-        <span className="ml-auto text-gray-600 text-xs border border-gray-700 px-2 py-0.5 rounded">
+        <span className="ml-auto text-gray-600 text-xs border border-gray-700/50 px-2 py-0.5 rounded-full">
           Locked
         </span>
       </div>
-      <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
-        {filteredNews.map((item) => (
+      <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar stagger-children">
+        {filteredNews.map((item, idx) => (
           <NewsCard
             key={item.id}
             item={item}
+            index={idx}
             onFindSimilar={() => onFindSimilar(item)}
           />
         ))}
@@ -53,20 +54,23 @@ export default function NewsList({ news, selectedDate, onFindSimilar }: Props) {
 
 function NewsCard({
   item,
+  index,
   onFindSimilar,
 }: {
   item: NewsItem;
+  index: number;
   onFindSimilar: () => void;
 }) {
   return (
     <div
-      className={`border rounded-lg p-3 transition ${
+      className={`border rounded-lg p-3 transition-smooth animate-fade-in-up hover:translate-y-[-1px] hover:shadow-lg ${
         item.sentiment === "positive"
-          ? "border-green-800/50 bg-green-950/20"
+          ? "border-green-800/40 bg-green-950/20 hover:border-green-700/60 hover:shadow-green-900/10"
           : item.sentiment === "negative"
-            ? "border-red-800/50 bg-red-950/20"
-            : "border-gray-700 bg-gray-800/30"
+            ? "border-red-800/40 bg-red-950/20 hover:border-red-700/60 hover:shadow-red-900/10"
+            : "border-gray-700/50 bg-gray-800/30 hover:border-gray-600/60"
       }`}
+      style={{ animationDelay: `${Math.min(index * 50, 300)}ms` }}
     >
       <div className="flex items-start gap-2">
         <span
@@ -121,7 +125,7 @@ function NewsCard({
             </span>
             <button
               onClick={onFindSimilar}
-              className="ml-auto text-cyan-500 hover:text-cyan-400 transition"
+              className="ml-auto text-cyan-500 hover:text-cyan-300 transition-smooth hover:drop-shadow-[0_0_4px_rgba(34,211,238,0.4)]"
             >
               Find Similar
             </button>

@@ -64,7 +64,7 @@ export default function SimilarDaysPanel({
     (similarDays.length || 1);
 
   return (
-    <div className="border border-gray-700 rounded-lg p-4">
+    <div className="glass-card rounded-xl p-4 animate-fade-in-up">
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
           <span className="text-white text-sm font-medium">Similar Days</span>
@@ -115,10 +115,11 @@ export default function SimilarDaysPanel({
         SIMILAR DAYS
       </div>
       <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-        {similarDays.map((day) => (
+        {similarDays.map((day, idx) => (
           <div
             key={day.date}
-            className="flex items-center justify-between bg-gray-800/50 rounded px-2 py-1.5 text-[11px]"
+            className="flex items-center justify-between bg-gray-800/40 rounded-lg px-2.5 py-1.5 text-[11px] transition-smooth hover:bg-gray-800/60 animate-fade-in"
+            style={{ animationDelay: `${idx * 40}ms` }}
           >
             <span className="text-gray-300 font-mono">{day.date}</span>
             <span className="text-cyan-400">sim {day.similarity}%</span>

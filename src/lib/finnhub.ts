@@ -49,59 +49,132 @@ export async function fetchCompanyNews(
   }));
 }
 
-// Simple keyword-based categorization fallback (used when AI is not available)
+function countMatches(text: string, patterns: RegExp[]): number {
+  let score = 0;
+  for (const p of patterns) {
+    if (p.test(text)) score++;
+  }
+  return score;
+}
+
 export function categorizeByKeywords(title: string, summary: string): {
   category: NewsCategory;
   sentiment: NewsSentiment;
 } {
   const text = (title + " " + summary).toLowerCase();
 
-  // Category detection
-  let category: NewsCategory = "market";
-  if (
-    /tariff|regulation|antitrust|government|congress|fed |policy|sanction|ban|law|legislation|tax/i.test(
-      text
-    )
-  ) {
-    category = "policy";
-  } else if (
-    /earnings|revenue|profit|quarter|q[1-4]|eps|guidance|fiscal|income|margin|beat|miss/i.test(
-      text
-    )
-  ) {
-    category = "earnings";
-  } else if (
-    /launch|product|feature|release|update|patent|innovation|device|chip|ai model|technology/i.test(
-      text
-    )
-  ) {
-    category = "product";
-  } else if (
-    /compet|rival|market share|overtake|contract|acquisition|merge/i.test(
-      text
-    )
-  ) {
-    category = "competition";
-  } else if (
-    /ceo|cfo|executive|board|appoint|resign|hire|layoff|restructur|buyback|insider/i.test(
-      text
-    )
-  ) {
-    category = "management";
+  // Score each category with multiple patterns
+  const scores: Record<NewsCategory, number> = {
+    market: 0,
+    policy: 0,
+    earnings: 0,
+    product: 0,
+    competition: 0,
+    management: 0,
+  };
+
+  scores.policy = countMatches(text, [
+    /tariff/i, /regulat/i, /antitrust/i, /government/i, /congress/i,
+    /fed\b/i, /federal reserve/i, /policy/i, /sanction/i, /legislat/i,
+    /tax\b/i, /trade war/i, /trade deal/i, /white house/i, /biden/i,
+    /trump/i, /sec\b/i, /ftc\b/i, /doj\b/i, /lawsuit/i, /ruling/i,
+    /court/i, /ban\b/i, /restrict/i, /subsid/i, /geopolit/i,
+    /election/i, /senate/i, /house bill/i, /interest rate/i,
+  ]);
+
+  scores.earnings = countMatches(text, [
+    /earning/i, /revenue/i, /profit/i, /quarter/i, /q[1-4]\b/i,
+    /eps\b/i, /guidance/i, /fiscal/i, /income/i, /margin/i,
+    /beat expect/i, /miss expect/i, /financial result/i, /report/i,
+    /forecast/i, /outlook/i, /dividend/i, /cash flow/i,
+    /year.over.year/i, /yoy\b/i, /bottom line/i, /top line/i,
+    /sales grew/i, /sales fell/i, /revenue grew/i, /revenue drop/i,
+  ]);
+
+  scores.product = countMatches(text, [
+    /launch/i, /product/i, /feature/i, /releas/i, /updat/i,
+    /patent/i, /innovat/i, /device/i, /chip\b/i, /ai\b/i,
+    /technolog/i, /software/i, /hardware/i, /platform/i, /app\b/i,
+    /model\b/i, /service/i, /iphone/i, /mac\b/i, /ipad/i,
+    /pixel/i, /galaxy/i, /gpu\b/i, /cpu\b/i, /data center/i,
+    /cloud/i, /robot/i, /vision pro/i, /self.driving/i, /fsd\b/i,
+    /autopilot/i, /chatgpt/i, /copilot/i, /gemini/i, /llm\b/i,
+    /machine learning/i, /neural/i, /semiconductor/i,
+  ]);
+
+  scores.competition = countMatches(text, [
+    /compet/i, /rival/i, /market share/i, /overtake/i, /versus/i,
+    /vs\b/i, /acqui/i, /merg/i, /deal\b/i, /partner/i,
+    /alliance/i, /joint venture/i, /antitrust/i, /monopol/i,
+    /dominant/i, /disrupt/i, /challenger/i, /battle/i,
+  ]);
+
+  scores.management = countMatches(text, [
+    /ceo\b/i, /cfo\b/i, /cto\b/i, /coo\b/i, /executive/i,
+    /board\b/i, /appoint/i, /resign/i, /hire/i, /fired/i,
+    /layoff/i, /restructur/i, /buyback/i, /insider/i,
+    /leadership/i, /founder/i, /director/i, /succession/i,
+    /compensation/i, /stock option/i, /share repurchase/i,
+  ]);
+
+  // Market gets a small base score so it's the fallback
+  scores.market = countMatches(text, [
+    /stock/i, /market/i, /invest/i, /wall street/i, /s&p/i,
+    /nasdaq/i, /dow\b/i, /bull/i, /bear/i, /rally/i,
+    /sell.off/i, /volatil/i, /index/i, /etf\b/i, /fund\b/i,
+    /portfolio/i, /valuation/i, /price target/i, /analyst/i,
+    /upgrade/i, /downgrade/i, /buy\b/i, /sell\b/i, /hold\b/i,
+    /overweight/i, /underweight/i,
+  ]);
+
+  // Find highest scoring category
+  let bestCategory: NewsCategory = "market";
+  let bestScore = 0;
+  for (const [cat, score] of Object.entries(scores)) {
+    if (score > bestScore) {
+      bestScore = score;
+      bestCategory = cat as NewsCategory;
+    }
   }
 
-  // Sentiment detection
+  // If product and policy tie, or multiple high scores, prefer non-market
+  if (bestCategory === "market" && bestScore <= 1) {
+    for (const cat of ["product", "earnings", "policy", "competition", "management"] as NewsCategory[]) {
+      if (scores[cat] > 0) {
+        bestCategory = cat;
+        break;
+      }
+    }
+  }
+
+  // Sentiment detection - count all individual keyword hits
+  const posPatterns = [
+    /surge/i, /rally/i, /beat/i, /upgrade/i, /record high/i,
+    /strong/i, /gain/i, /rise/i, /boost/i, /bullish/i,
+    /optimis/i, /soar/i, /outperform/i, /positive/i, /growth/i,
+    /expand/i, /buy\b/i, /higher/i, /upside/i, /opportunity/i,
+    /momentum/i, /breakout/i, /recover/i, /rebound/i, /top pick/i,
+    /best/i, /winner/i, /success/i, /exceed/i, /impressive/i,
+    /skyrocket/i, /surging/i, /jumps/i, /climbs/i, /advances/i,
+  ];
+  const negPatterns = [
+    /drop/i, /fall/i, /miss/i, /downgrade/i, /weak/i,
+    /decline/i, /loss/i, /cut\b/i, /bearish/i, /pessimis/i,
+    /plunge/i, /crash/i, /concern/i, /risk/i, /threat/i,
+    /sell\b/i, /warn/i, /slump/i, /tumble/i, /lower/i,
+    /downside/i, /trouble/i, /worst/i, /loser/i, /disappoint/i,
+    /struggle/i, /headwind/i, /pressure/i, /fear/i, /bubble/i,
+    /overvalued/i, /hit.?a.?wall/i, /slides/i, /sinks/i, /dumps/i,
+  ];
+
+  const posScore = countMatches(text, posPatterns);
+  const negScore = countMatches(text, negPatterns);
+
   let sentiment: NewsSentiment = "neutral";
-  const positiveWords =
-    /surge|rally|beat|upgrade|record|strong|gain|rise|boost|bullish|optimis|soar|outperform|positive|growth|expand|buy/i;
-  const negativeWords =
-    /drop|fall|miss|downgrade|weak|decline|loss|cut|bearish|pessimis|plunge|crash|concern|risk|threat|sell|warn/i;
-
-  const posScore = (text.match(positiveWords) || []).length;
-  const negScore = (text.match(negativeWords) || []).length;
-
-  if (posScore > negScore) sentiment = "positive";
+  if (posScore > negScore + 1) sentiment = "positive";
+  else if (negScore > posScore + 1) sentiment = "negative";
+  else if (posScore > negScore) sentiment = "positive";
   else if (negScore > posScore) sentiment = "negative";
 
-  return { category, sentiment };
+  return { category: bestCategory, sentiment };
 }

@@ -64,38 +64,41 @@ export async function GET(req: NextRequest) {
         };
       });
 
-      // Compute T+1 and T+5 returns using stock prices if available
+      // Compute T+1 and T+5 returns using stock prices
       try {
         const { fetchStockData } = await import("@/lib/yahoo");
         const candles = await fetchStockData(symbol);
-        const priceMap = new Map(candles.map((c) => [c.time, c]));
         const sortedDates = candles.map((c) => c.time).sort();
+        const priceByDate = new Map(candles.map((c) => [c.time, c]));
+
+        // Find nearest trading day at or before the given date
+        function findNearestIdx(date: string): number {
+          let lo = 0, hi = sortedDates.length - 1;
+          while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            if (sortedDates[mid] <= date) lo = mid + 1;
+            else hi = mid - 1;
+          }
+          return hi; // largest index where sortedDates[idx] <= date
+        }
 
         for (const item of news) {
-          const idx = sortedDates.indexOf(item.date);
-          if (idx >= 0) {
-            const current = priceMap.get(sortedDates[idx]);
-            const t1 =
-              idx + 1 < sortedDates.length
-                ? priceMap.get(sortedDates[idx + 1])
-                : null;
-            const t5 =
-              idx + 5 < sortedDates.length
-                ? priceMap.get(sortedDates[idx + 5])
-                : null;
+          const idx = findNearestIdx(item.date);
+          if (idx < 0) continue;
+          const current = priceByDate.get(sortedDates[idx]);
+          if (!current) continue;
 
-            if (current && t1) {
-              item.returnT1 = +(
-                ((t1.close - current.close) / current.close) *
-                100
-              ).toFixed(2);
-            }
-            if (current && t5) {
-              item.returnT5 = +(
-                ((t5.close - current.close) / current.close) *
-                100
-              ).toFixed(2);
-            }
+          if (idx + 1 < sortedDates.length) {
+            const t1 = priceByDate.get(sortedDates[idx + 1])!;
+            item.returnT1 = +(
+              ((t1.close - current.close) / current.close) * 100
+            ).toFixed(2);
+          }
+          if (idx + 5 < sortedDates.length) {
+            const t5 = priceByDate.get(sortedDates[idx + 5])!;
+            item.returnT5 = +(
+              ((t5.close - current.close) / current.close) * 100
+            ).toFixed(2);
           }
         }
       } catch {

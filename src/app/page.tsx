@@ -126,22 +126,26 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0a0e17]">
       {/* Header */}
-      <header className="border-b border-gray-800 px-4 py-2 flex items-center gap-4">
-        <h1 className="text-white font-bold text-lg tracking-wide">
-          <span className="text-cyan-400">K</span>Story
+      <header className="border-b border-gray-800/60 px-4 py-2.5 flex items-center gap-4 backdrop-blur-sm bg-[#0a0e17]/80 sticky top-0 z-40">
+        <h1 className="text-white font-bold text-lg tracking-wide animate-fade-in">
+          <span className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">K</span>Story
         </h1>
         <StockSelector symbol={symbol} onSelect={setSymbol} />
         {currentPrice > 0 && (
-          <span className="text-gray-400 text-sm ml-2">
+          <span className="text-gray-400 text-sm ml-2 font-mono animate-fade-in">
             ${currentPrice.toFixed(2)}
           </span>
         )}
+        <div className="ml-auto flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse-glow" />
+          <span className="text-green-400 text-[10px] font-medium">LIVE</span>
+        </div>
       </header>
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-0">
         {/* Left Panel */}
-        <div className="flex-1 p-4 min-w-0">
+        <div className="flex-1 p-4 min-w-0 animate-fade-in-up">
           {/* Chart */}
           <CandlestickChart
             candles={candles}
@@ -187,7 +191,7 @@ export default function Home() {
         </div>
 
         {/* Right Panel */}
-        <div className="w-full lg:w-[340px] border-l border-gray-800 p-4 space-y-4">
+        <div className="w-full lg:w-[340px] border-l border-gray-800/60 p-4 space-y-4 animate-slide-in-right">
           <ForecastPanel
             forecast={forecast}
             period={forecastPeriod}

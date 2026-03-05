@@ -44,7 +44,7 @@ export default function StockSelector({ symbol, onSelect }: Props) {
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-2xl z-50 p-4 min-w-[500px] max-h-[400px] overflow-auto">
+        <div className="absolute top-full left-0 mt-1 bg-gray-900/95 backdrop-blur-xl border border-gray-700/60 rounded-xl shadow-2xl z-50 p-4 min-w-[500px] max-h-[400px] overflow-auto animate-fade-in-up">
           {STOCK_SECTORS.map((sector) => (
             <div key={sector.name} className="mb-3">
               <div className="text-xs text-emerald-400 font-semibold mb-1.5">
